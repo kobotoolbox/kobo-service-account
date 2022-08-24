@@ -7,12 +7,15 @@ from django.contrib.auth.models import (
 from django.db.models.manager import EmptyManager
 from django.utils.crypto import get_random_string
 
-from .settings import system_account_settings as settings
+from .settings import service_account_settings as settings
 
 
-class SystemAccountUser:
+class ServiceAccountUser:
     """
+    Inspired by Django AnonymousUser class.
 
+    The main difference is an instance of this class is granted with
+    superuser privileges
     """
 
     id = None
@@ -30,7 +33,7 @@ class SystemAccountUser:
     redis_obsolete_key = f'{settings.NAMESPACE}::authentication_key::obsolete'
 
     def __str__(self):
-        return 'SystemAccountUser'
+        return 'ServiceAccountUser'
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
@@ -42,18 +45,18 @@ class SystemAccountUser:
 
     def __int__(self):
         raise TypeError(
-            'Cannot cast SystemAccountUser to int. '
+            'Cannot cast ServiceAccountUser to int. '
             'Are you trying to use it in place of User?'
         )
 
     def check_password(self, raw_password):
         raise NotImplementedError(
-            "Django doesn't provide a DB representation for SystemAccountUser."
+            "Django doesn't provide a DB representation for ServiceAccountUser."
         )
 
     def delete(self):
         raise NotImplementedError(
-            "Django doesn't provide a DB representation for SystemAccountUser."
+            "Django doesn't provide a DB representation for ServiceAccountUser."
         )
 
     def get_all_permissions(self, obj=None):
@@ -140,12 +143,12 @@ class SystemAccountUser:
 
     def save(self):
         raise NotImplementedError(
-            "Django doesn't provide a DB representation for SystemAccountUser."
+            "Django doesn't provide a DB representation for ServiceAccountUser."
         )
 
     def set_password(self, raw_password):
         raise NotImplementedError(
-            "Django doesn't provide a DB representation for SystemAccountUser."
+            "Django doesn't provide a DB representation for ServiceAccountUser."
         )
 
     @property

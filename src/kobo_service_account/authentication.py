@@ -1,27 +1,34 @@
+from __future__ import annotations
+
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as t
 from rest_framework import HTTP_HEADER_ENCODING, exceptions
-from rest_framework.authentication import BaseAuthentication
+from rest_framework.authentication import (
+    BaseAuthentication,
+    get_authorization_header,
+)
+from rest_framework.request import Request
 
-from .models import SystemAccountUser
+from .models import ServiceAccountUser
 
 
-class SystemAccountAuthentication(BaseAuthentication):
+class ServiceAccountAuthentication(BaseAuthentication):
     """
     Token based authentication based on DRF TokenAuthentication.
     Use redis as the backend
 
     Clients should authenticate by passing the token key in the "Authorization"
-    HTTP header, prepended with the string "SystemAccountToken ".
+    HTTP header, prepended with the string "ServiceAccountToken ".
 
     For example:
 
-        Authorization: SystemAccountToken 401f7ac837da42b97f613d789819ff93537bee6a
+        Authorization: ServiceAccountToken 401f7ac837da42b97f613d789819ff93537bee6a
     """
 
-    keyword = 'SystemAccountToken'
+    keyword = 'ServiceAccountToken'
 
-    def authenticate(self, request):
-        auth = self.get_authorization_header(request).split()
+    def authenticate(self, request: Request):
+        auth = get_authorization_header(request).split()
 
         if not auth or auth[0].lower() != self.keyword.lower().encode():
             return None
@@ -40,22 +47,14 @@ class SystemAccountAuthentication(BaseAuthentication):
                 'Invalid token header. Token string should not contain invalid characters.')
             raise exceptions.AuthenticationFailed(msg)
 
-        return self.authenticate_credentials(token, request)
+        return self.authenticate_credentials(token)
 
-    def authenticate_credentials(self, key, request):
-        system_account_user = SystemAccountUser()
-        if not system_account_user.has_valid_authentication_token(key):
+    def authenticate_credentials(self, token: str) -> tuple[User, str]:
+        service_account_user = ServiceAccountUser()
+        if not service_account_user.has_valid_authentication_token(token):
             raise exceptions.AuthenticationFailed(t('Invalid token header.'))
 
-        return system_account_user, key
+        return service_account_user, token
 
-    def authenticate_header(self, request):
+    def authenticate_header(self, request: Request):
         return self.keyword
-
-    @staticmethod
-    def get_authorization_header(request):
-        auth = request.META.get('HTTP_AUTHORIZATION', b'')
-        if isinstance(auth, str):
-            # Work around django test client oddness
-            auth = auth.encode(HTTP_HEADER_ENCODING)
-        return auth

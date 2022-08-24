@@ -15,7 +15,7 @@ DEFAULTS = {
 }
 
 
-class SystemAccountSettings(APISettings):
+class ServiceAccountSettings(APISettings):
 
     @property
     def user_settings(self) -> dict[str, Any]:
@@ -27,6 +27,6 @@ class SystemAccountSettings(APISettings):
         return self.__getattr__(attr)
 
 
-system_account_settings = SystemAccountSettings(
+service_account_settings = ServiceAccountSettings(
     user_settings=None, defaults=DEFAULTS, import_strings=None
 )
