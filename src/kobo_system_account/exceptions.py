@@ -1,0 +1,3 @@
+
+class MissingHeaderError(Exception):
+    pass
