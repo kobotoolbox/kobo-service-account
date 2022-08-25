@@ -6,4 +6,6 @@
 
 # Install testing / development requirements
 pytest
+pytest-django
 mock
+fakeredis

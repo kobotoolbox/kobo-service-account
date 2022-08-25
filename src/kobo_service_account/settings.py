@@ -7,11 +7,11 @@ DEFAULTS = {
     'BACKEND': {
         'LOCATION': 'redis://localhost/'
     },
-    'NAMESPACE': 'kobo-system-account',
+    'NAMESPACE': 'kobo-service-account',
     'TOKEN_TTL': 60,
     'TOKEN_TTL_EXPIRY_THRESHOLD': 5,
     'TOKEN_LENGTH': 50,
-    'ON_BEHALF_HEADER': 'Kobo-System-Account-On-Behalf',
+    'ON_BEHALF_HEADER': 'Kobo-Service-Account-On-Behalf',
 }
 
 
@@ -20,7 +20,7 @@ class ServiceAccountSettings(APISettings):
     @property
     def user_settings(self) -> dict[str, Any]:
         if not hasattr(self, '_user_settings'):
-            self._user_settings = getattr(settings, 'SYSTEM_ACCOUNT', {})
+            self._user_settings = getattr(settings, 'SERVICE_ACCOUNT', {})
         return self._user_settings
 
     def __getitem__(self, attr: str) -> Any:

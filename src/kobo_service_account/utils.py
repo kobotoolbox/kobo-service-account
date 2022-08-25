@@ -24,9 +24,8 @@ def get_real_user(request: Union[Request, HttpRequest]) -> User:
     if not isinstance(request.user, ServiceAccountUser):
         return request.user
 
-    on_behalf_header = settings.ON_BEHALF_HEADER.lower()
     try:
-        username = request.headers[on_behalf_header]
+        username = request.headers[settings.ON_BEHALF_HEADER]
     except KeyError:
         raise MissingHeaderError
 
