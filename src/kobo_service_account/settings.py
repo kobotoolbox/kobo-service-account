@@ -12,6 +12,7 @@ DEFAULTS = {
     'TOKEN_TTL_EXPIRY_THRESHOLD': 5,
     'TOKEN_LENGTH': 50,
     'ON_BEHALF_HEADER': 'Kobo-Service-Account-On-Behalf',
+    'WHITELISTED_HOSTS': [],
 }
 
 

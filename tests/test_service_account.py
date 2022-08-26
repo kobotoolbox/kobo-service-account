@@ -5,12 +5,14 @@ import fakeredis
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test.utils import override_settings as dj_override_settings
 from mock import patch
 from rest_framework.exceptions import AuthenticationFailed
 
 from kobo_service_account.authentication import ServiceAccountAuthentication
+from kobo_service_account.exceptions import HostNotAllowedException
 from kobo_service_account.models import ServiceAccountUser
-from kobo_service_account.settings import DEFAULTS
+from kobo_service_account.settings import DEFAULTS, service_account_settings
 from kobo_service_account.utils import get_real_user, get_request_headers
 
 
@@ -26,9 +28,6 @@ class FakeRequest:
     user = ServiceAccountUser()
 
     def __init__(self, with_auth: bool, username: str, wrong_auth: bool = False):
-        """
-        Booleans
-        """
         self._with_auth = with_auth
         self._wrong_auth = wrong_auth
         self._username = username
@@ -44,15 +43,14 @@ class FakeRequest:
 
     @property
     def headers(self):
+        headers = {'host': 'testserver'}  # Useful to test authentication with host
+
         if self._with_auth:
-            headers = get_request_headers(self._username)
-            if not self._wrong_auth:
-                return headers
+            headers.update(get_request_headers(self._username))
+            if self._wrong_auth:
+                headers['Authorization'] += '-wrong-auth'
 
-            headers['Authorization'] += '-wrong-auth'
-            return headers
-
-        return {}
+        return headers
 
 
 def test_privileges():
@@ -81,17 +79,32 @@ def test_settings():
     )
 
     # Three values are overridden in pytest
+    # Django settings
     assert (
         settings.SERVICE_ACCOUNT['TOKEN_TTL']
-        == pytest.overridden_settings['TOKEN_TTL']
+        == pytest.test_settings['TOKEN_TTL']
     )
     assert (
         settings.SERVICE_ACCOUNT['TOKEN_TTL_EXPIRY_THRESHOLD']
-        == pytest.overridden_settings['TOKEN_TTL_EXPIRY_THRESHOLD']
+        == pytest.test_settings['TOKEN_TTL_EXPIRY_THRESHOLD']
     )
     assert (
         settings.SERVICE_ACCOUNT['TOKEN_LENGTH']
-        == pytest.overridden_settings['TOKEN_LENGTH']
+        == pytest.test_settings['TOKEN_LENGTH']
+    )
+
+    # kobo-service-account settings
+    assert (
+        service_account_settings.TOKEN_TTL
+        == pytest.test_settings['TOKEN_TTL']
+    )
+    assert (
+        service_account_settings.TOKEN_TTL_EXPIRY_THRESHOLD
+        == pytest.test_settings['TOKEN_TTL_EXPIRY_THRESHOLD']
+    )
+    assert (
+        service_account_settings.TOKEN_LENGTH
+        == pytest.test_settings['TOKEN_LENGTH']
     )
 
 
@@ -176,3 +189,22 @@ def test_authentication_failure():
     request = FakeRequest(with_auth=True, username='foo', wrong_auth=True)
     with pytest.raises(AuthenticationFailed) as e:
         auth_class.authenticate(request)
+
+
+def test_authentication_success_with_whitelisted_hosts(override_settings):
+    """
+    Test if authentication is still successful when a host is whitelisted and
+    matches request HTTP_HOST header
+    """
+    override_settings(WHITELISTED_HOSTS=['testserver'])
+    test_authentication_success()
+
+
+def test_authentication_failure_with_whitelisted_hosts(override_settings):
+    """
+    Test if authentication fails when a host is whitelisted and does not
+    match request HTTP_HOST header
+    """
+    override_settings(WHITELISTED_HOSTS=['fakeserver'])
+    with pytest.raises(HostNotAllowedException) as e:
+        test_authentication_success()

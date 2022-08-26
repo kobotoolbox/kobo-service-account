@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
+from django.core.exceptions import BadRequest
 from django.utils.translation import gettext_lazy as t
 from rest_framework import HTTP_HEADER_ENCODING, exceptions
 from rest_framework.authentication import (
@@ -9,7 +10,9 @@ from rest_framework.authentication import (
 )
 from rest_framework.request import Request
 
+from .exceptions import HostNotAllowedException
 from .models import ServiceAccountUser
+from .settings import service_account_settings as settings
 
 
 class ServiceAccountAuthentication(BaseAuthentication):
@@ -47,12 +50,23 @@ class ServiceAccountAuthentication(BaseAuthentication):
                 'Invalid token header. Token string should not contain invalid characters.')
             raise exceptions.AuthenticationFailed(msg)
 
-        return self.authenticate_credentials(token)
+        return self.authenticate_credentials(token, request)
 
-    def authenticate_credentials(self, token: str) -> tuple[User, str]:
+    def authenticate_credentials(
+        self, token: str, request: Request
+    ) -> tuple[User, str]:
         service_account_user = ServiceAccountUser()
         if not service_account_user.has_valid_authentication_token(token):
             raise exceptions.AuthenticationFailed(t('Invalid token header.'))
+
+        if settings.WHITELISTED_HOSTS:
+            try:
+                http_host = request.META['HTTP_HOST']
+            except KeyError:
+                raise BadRequest
+
+            if http_host not in settings.WHITELISTED_HOSTS:
+                raise HostNotAllowedException
 
         return service_account_user, token
 

@@ -23,6 +23,7 @@ It uses Redis as the back end for authentication and token persistence.
     "TOKEN_TTL_EXPIRY_THRESHOLD": 5,
     "TOKEN_LENGTH": 50,
     "ON_BEHALF_HEADER": "Kobo-Service-Account-On-Behalf",
+    "WHITELISTED_HOSTS": [],
 }
 ```
 
@@ -34,3 +35,4 @@ It uses Redis as the back end for authentication and token persistence.
 | `TOKEN_TTL_EXPIRY_THRESHOLD` | Number of seconds before expiry to generate a new token |
 | `TOKEN_LENGTH` | Number of characters of the token |
 | `ON_BEHALF_HEADER` | Header name used to pass the real username |
+| `WHITELISTED_HOSTS` | Optional. List of hosts authorized to send requests with service account user |
