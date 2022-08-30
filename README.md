@@ -75,7 +75,7 @@ REST_FRAMEWORK = {
 | `TOKEN_TTL_EXPIRY_THRESHOLD` | Number of seconds before expiry to generate a new token |
 | `TOKEN_LENGTH` | Number of characters of the token |
 | `ON_BEHALF_HEADER` | Header name used to pass the real username |
-| `WHITELISTED_HOSTS` | Optional. List of hosts authorized to send requests with service account user |
+| `WHITELISTED_HOSTS` | Optional. List of hosts which are allowed to use service account authentication headers |
 
 ## Test
 1. Create a virtual env
