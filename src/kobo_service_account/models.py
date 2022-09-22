@@ -41,7 +41,7 @@ class ServiceAccountUser:
     def __hash__(self):
         # instances always return the same hash value but different from
         # `django.contrib.auth.models.AnonymousUser`
-        return 2
+        return hash(self.username)
 
     def __int__(self):
         raise TypeError(

@@ -1,6 +1,6 @@
 # Kobo Service Account 
 
-This library provides a user with super privileges with allow requests between
+This library provides a user with super privileges that allow requests between
 KoboToolbox apps regardless of the permissions of user who has initiated the call.  
 
 It uses Redis as the back end for authentication and token persistence. 

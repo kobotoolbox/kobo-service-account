@@ -118,6 +118,7 @@ def test_get_existing_authentication_token():
     auth_token = 'my-authentication-token'
     ttl = settings.SERVICE_ACCOUNT['TOKEN_TTL']
     redis_client = service_account_user.redis_client
+    assert redis_client.get(ServiceAccountUser.redis_key) is None
     redis_client.setex(ServiceAccountUser.redis_key, ttl, auth_token)
     assert service_account_user.get_or_create_authentication_token() == auth_token
 

@@ -34,7 +34,7 @@ def get_real_user(request: Union[Request, HttpRequest]) -> User:
 
 def get_request_headers(username: str) -> dict:
     """
-    Return a dict to insert in headers to authenticated proxied requests
+    Return a dict to insert in headers to authenticate proxied requests with
     Python apps
     """
     headers = {}
@@ -60,8 +60,8 @@ def reversion_monkey_patch():
     except ImportError:
         pass
     else:
+        import reversion.views
         from reversion.revisions import set_user, get_user
-        from reversion.views import _set_user_from_request
 
         def _set_user_from_request_patch(request):
 
@@ -72,7 +72,4 @@ def reversion_monkey_patch():
             ):
                 set_user(get_real_user(request))
 
-        # TODO figure out why monkey-patching raises an AttributeError if import
-        #  `from reversion.views import _set_user_from_request` is not present
-        # > AttributeError: module 'reversion' has no attribute 'views'
         reversion.views._set_user_from_request = _set_user_from_request_patch
