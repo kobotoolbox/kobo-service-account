@@ -4,7 +4,7 @@ import time
 import fakeredis
 import pytest
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test.utils import override_settings as dj_override_settings
 from mock import patch
 from rest_framework.exceptions import AuthenticationFailed
@@ -157,7 +157,7 @@ def test_get_real_user():
     """
     Test if we can retrieve the real user from request headers
     """
-    user = User.objects.create(username='foo')
+    user = get_user_model().objects.create(username='foo')
     request = FakeRequest(with_auth=True, username=user.username)
     real_user = get_real_user(request)
     assert user == real_user
