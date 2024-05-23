@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import get_user_model
 from django.core.exceptions import BadRequest
 from django.utils.translation import gettext_lazy as t
 from rest_framework import HTTP_HEADER_ENCODING, exceptions
@@ -54,7 +54,7 @@ class ServiceAccountAuthentication(BaseAuthentication):
 
     def authenticate_credentials(
         self, token: str, request: Request
-    ) -> tuple[User, str]:
+    ) -> tuple['settings.AUTH_USER_MODEL', str]:
         service_account_user = ServiceAccountUser()
         if not service_account_user.has_valid_authentication_token(token):
             raise exceptions.AuthenticationFailed(t('Invalid token header.'))

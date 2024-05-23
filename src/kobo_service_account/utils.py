@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Union
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 from django.http import HttpRequest
 from rest_framework.request import Request
 
@@ -13,7 +12,7 @@ from .models import ServiceAccountUser
 from .settings import service_account_settings as settings
 
 
-def get_real_user(request: Union[Request, HttpRequest]) -> User:
+def get_real_user(request: Union[Request, HttpRequest]) -> 'settings.AUTH_USER_MODEL':
     """
     Return a real Django User object.
     If `request.user` is the sysadmin user, it tries to load the real

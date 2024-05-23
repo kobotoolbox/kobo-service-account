@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 requirements = [
-    'Django>=3.2,<3.3',
+    'Django>=3.2,<4.3',
     'djangorestframework>=3.13,<4',
     'redis'
 ]
