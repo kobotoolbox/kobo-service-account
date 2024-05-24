@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import get_user_model
+from django.contrib.auth import get_user_model
 from django.core.exceptions import BadRequest
 from django.utils.translation import gettext_lazy as t
 from rest_framework import HTTP_HEADER_ENCODING, exceptions
